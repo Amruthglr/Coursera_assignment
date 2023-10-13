@@ -46,7 +46,7 @@ app.layout = html.Div([
 
                     )),
                     html.Div([#TASK 2.3: Add a division for output display
-                            html.Div(id=' output-container', className='chart-grid', style={'display':'flex'}),])
+                            html.Div(id='output-container', className='chart-grid', style={'display':'flex'}),])
 ])
 @app.callback(
     Output(component_id='select-year', component_property='disabled'),
@@ -59,17 +59,15 @@ def update_input_container(selected_statistics):
     else:
         return True
 
-@app.callback([
+@app.callback(
     Output(component_id ='output-container', component_property='children'),
     [Input(component_id='dropdown-statistics', component_property='value'),
     Input(component_id= 'select-year', component_property='value')]
-    ])
+    )
 
 def update_output_container(selected_statistics, entered_year):
     if selected_statistics == 'Recession Period Statistics':
         recession_data = data[data['Recession'] == 1]
-
-        # plot1_data, plot2_data, plot3_data, plot4_data = compute_recession_period_stat()
 
         #Plotting Line Graph
         plot1_data_R = recession_data.groupby('Year')['Automobile_Sales'].mean().reset_index()
@@ -89,14 +87,13 @@ def update_output_container(selected_statistics, entered_year):
 
         # return [plot1_fig, plot2_fig, plot3_fig, plot4_fig]
         return[
-            html.Div(className='chart-item', children=[html.Div(children=plot1_fig_R), html.Div(children=plot2_data_R)]),
+            html.Div(className='chart-item', children=[html.Div(children=plot1_fig_R), html.Div(children=plot2_fig_R)]),
             html.Div(className='chart-item', children=[html.Div(children=plot3_fig_R), html.Div(children=plot4_fig_R)])
         ]
 
     elif (entered_year and selected_statistics == 'Yearly Statistics'):
 
         yearly_data = data[data['Year']== entered_year]
-        # plot1_data, plot2_data, plot3_data, plot4_data = compute_yearly_stats(entered_year)
 
         #Plotting line chart
         plot1_data = data.groupby('Year')['Automobile_Sales'].mean().reset_index()
@@ -104,18 +101,16 @@ def update_output_container(selected_statistics, entered_year):
 
         #Plotting line Chart
         plot2_data = yearly_data.groupby('Month')['Automobile_Sales'].sum().reset_index()
-        plot2_fig = dcc.Graph(figure=px.line(plot3_data, x = 'Month', y = 'Automobile_Sales', title= 'Total Monthly Automobile sales'))
+        plot2_fig = dcc.Graph(figure=px.line(plot2_data, x = 'Month', y = 'Automobile_Sales', title= 'Total Monthly Automobile sales'))
 
         #Plotting Bar Chart
         plot3_data = yearly_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()
-        plot3_fig = dcc.Graph(figure=px.bar(plot3_data, x = 'Year', y = 'Automobile_Sales', title = 'Average number of vehicles sold during the given year' ))
+        plot3_fig = dcc.Graph(figure=px.bar(plot3_data, x = 'Vehicle_Type', y = 'Automobile_Sales', title = 'Average number of vehicles sold during the given year' ))
 
         # Plotting Pie Chart
         plot4_data = yearly_data.groupby('Vehicle_Type')['Advertising_Expenditure'].sum().reset_index()
         plot4_fig = dcc.Graph(figure=px.pie(plot4_data, values= 'Advertising_Expenditure', names='Vehicle_Type', title = 'otal Advertisement Expenditure for each vehicle'))
 
-        # return [plot1_fig, plot2_fig, plot3_fig, plot4_fig]
-        plot4_fig.show()
         return [
             html.Div(className='chart-item', children=[html.Div(plot1_fig), html.Div(plot2_fig)]),
             html.Div(className='chart-item', children=[html.Div(plot3_fig), html.Div(plot4_fig)])
